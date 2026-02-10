@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Monitor - Kiwrious + iTiles</title>
+    <!-- Kiwrious Theme CSS -->
+    <link rel="stylesheet" href="https://stakcos.com/kiwrious/cdn/css/theme.css">
+    <link rel="stylesheet" href="../styles/shared.css">
+    <style>
+        /* Theme Integration - Kiwrious Colors */
+        body {
+            font-family: var(--font-family-primary);
+            background: var(--gradient-primary);
+        }
+
+        .app-header h1,
+        .app-header p {
+            font-family: var(--font-family-primary);
+        }
+
+        .back-button {
+            background: var(--color-primary);
+            color: var(--color-text-white);
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-bold);
+            transition: var(--transition-default) var(--transition-ease);
+        }
+
+        .back-button:hover {
+            background: var(--color-accent);
+            transform: translateX(-5px);
+        }
+
+        .card {
+            box-shadow: var(--shadow-card);
+            border-radius: var(--border-radius-large);
+        }
+
+        .card h2 {
+            color: var(--color-primary-dark);
+            font-family: var(--font-family-primary);
+            font-weight: var(--font-weight-bold);
+            border-bottom-color: var(--color-primary);
+        }
+
+        button {
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-bold);
+            border-radius: var(--border-radius-medium);
+            transition: var(--transition-default) var(--transition-ease-in-out);
+        }
+
+        button:not(.secondary):not(.danger):not(.success) {
+            background: var(--color-primary);
+        }
+
+        button:not(.secondary):not(.danger):not(.success):hover:not(:disabled) {
+            background: var(--color-accent);
+        }
+
+        button.secondary {
+            background: var(--color-secondary);
+        }
+
+        button.secondary:hover:not(:disabled) {
+            background: var(--color-accent);
+        }
+
+        button.success {
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+        }
+
+        .sensor-display {
+            background: var(--color-bg-dark);
+            border-radius: var(--border-radius-large);
+        }
+
+        .sensor-value {
+            color: var(--color-secondary);
+            font-family: var(--font-family-primary);
+        }
+
+        .sensor-label {
+            color: var(--color-text-white);
+            font-family: var(--font-family-secondary);
+            opacity: var(--opacity-medium-high);
+        }
+
+        .badge {
+            border-radius: var(--border-radius-round);
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .badge.success {
+            background: var(--color-secondary);
+        }
+
+        .badge.warning {
+            background: var(--color-primary);
+        }
+
+        .badge.danger {
+            background: #dc3545;
+        }
+
+        .info-box {
+            background: rgba(79, 215, 207, 0.1);
+            border: 2px solid var(--color-secondary);
+            border-radius: var(--border-radius-medium);
+        }
+
+        .info-box strong {
+            color: var(--color-primary-dark);
+            font-family: var(--font-family-primary);
+        }
+
+        .info-box ul {
+            color: var(--color-text-dark);
+            font-family: var(--font-family-secondary);
+        }
+
+        .control-group label {
+            color: var(--color-primary-dark);
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .control-group input,
+        .control-group select {
+            border: 2px solid var(--color-secondary);
+            border-radius: var(--border-radius-medium);
+            font-family: var(--font-family-secondary);
+            transition: var(--transition-default) var(--transition-ease);
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(248, 87, 8, 0.1);
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, rgba(79, 215, 207, 0.1) 0%, rgba(0, 171, 161, 0.1) 100%);
+            border-radius: var(--border-radius-medium);
+            border: 1px solid var(--color-secondary);
+        }
+
+        .stat-value {
+            color: var(--color-primary);
+            font-family: var(--font-family-primary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .stat-label {
+            color: var(--color-primary-dark);
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .log-container {
+            background: var(--color-bg-dark);
+            border-radius: var(--border-radius-medium);
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-entry {
+            font-family: var(--font-family-secondary);
+        }
+
+        .log-entry .timestamp {
+            color: var(--color-secondary);
+        }
+
+        .log-entry .type-info {
+            color: var(--color-secondary);
+        }
+
+        .log-entry .type-success {
+            color: #81c784;
+        }
+
+        .log-entry .type-error {
+            color: #e57373;
+        }
+
+        .log-entry .type-warning {
+            color: var(--color-primary);
+        }
+
+        .status-bar {
+            background: rgba(79, 215, 207, 0.1);
+            border-radius: var(--border-radius-medium);
+            border: 1px solid var(--color-secondary);
+        }
+
+        .status-dot {
+            transition: var(--transition-default) var(--transition-ease);
+        }
+
+        .status-dot.connected {
+            background: var(--color-secondary);
+            box-shadow: 0 0 10px var(--color-secondary);
+        }
+
+        .visual-display {
+            background: var(--color-bg-dark);
+            border-radius: var(--border-radius-large);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .visual-indicator {
+            border-radius: var(--border-radius-round);
+            transition: var(--transition-slow) var(--transition-ease-out);
+        }
+
+        /* Status indicator labels */
+        .status-indicator span {
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-button">← Back to Apps</a>
+        
+        <div class="app-header">
+            <h1>💨 Air Quality Monitor</h1>
+            <p>Track VOC levels with real-time air quality warnings</p>
+        </div>
+
+        <div class="card">
+            <h2>Connection Status</h2>
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot" id="kiwriousStatus"></div>
+                    <span>Kiwrious Air Sensor (VOC)</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot" id="itilesStatus"></div>
+                    <span>iTiles Alert System</span>
+                </div>
+            </div>
+            <div class="button-group">
+                <button id="connectKiwriousBtn">Connect Kiwrious Sensor</button>
+                <button id="connectITilesBtn">Connect iTiles</button>
+                <button id="disconnectBtn" disabled>Disconnect All</button>
+                <button id="pairTilesBtn" disabled class="secondary">Pair Child Tiles</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Current Air Quality</h2>
+            <div class="sensor-display">
+                <div class="sensor-label">VOC Level</div>
+                <div class="sensor-value">
+                    <span id="vocValue">--</span>
+                    <span class="sensor-unit">PPM</span>
+                </div>
+                <div style="text-align: center; margin-top: 10px;">
+                    <span id="qualityLabel" class="badge" style="font-size: 1.2rem;">Waiting...</span>
+                </div>
+            </div>
+            
+            <div class="visual-display">
+                <div class="visual-indicator" id="qualityIndicator"></div>
+            </div>
+
+            <div class="info-box">
+                <strong>Air Quality Levels:</strong>
+                <ul>
+                    <li><span style="color: #00ff00;">🟢 Excellent</span> - VOC < 50 PPM</li>
+                    <li><span style="color: #99ff00;">🟡 Good</span> - VOC 50-150 PPM</li>
+                    <li><span style="color: #ffcc00;">🟠 Fair</span> - VOC 150-300 PPM</li>
+                    <li><span style="color: #ff6600;">🟠 Poor</span> - VOC 300-500 PPM</li>
+                    <li><span style="color: #ff0000;">🔴 Hazardous</span> - VOC > 500 PPM</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Monitoring Controls</h2>
+            <div class="control-group">
+                <label>Alert Threshold (PPM)</label>
+                <input type="number" id="alertThreshold" value="300" min="100" max="1000" step="50">
+            </div>
+            <div class="button-group">
+                <button id="startBtn" disabled class="success">▶️ Start Monitoring</button>
+                <button id="stopBtn" disabled class="danger">⏹️ Stop</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="currentVOC">--</div>
+                    <div class="stat-label">Current (PPM)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="avgVOC">--</div>
+                    <div class="stat-label">Average (PPM)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="peakVOC">--</div>
+                    <div class="stat-label">Peak (PPM)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="alertCount">0</div>
+                    <div class="stat-label">Alerts</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Event Log</h2>
+            <div class="log-container" id="logContainer"></div>
+            <button id="clearLogBtn" style="margin-top: 10px;">🗑️ Clear Log</button>
+        </div>
+    </div>
+
+    <script src="../js/shared-utils.js"></script>
+    <script type="module">
+        const app = new AppController();
+        
+        const connectKiwriousBtn = document.getElementById('connectKiwriousBtn');
+        const connectITilesBtn = document.getElementById('connectITilesBtn');
+        const pairTilesBtn = document.getElementById('pairTilesBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const vocValue = document.getElementById('vocValue');
+        const qualityLabel = document.getElementById('qualityLabel');
+        const qualityIndicator = document.getElementById('qualityIndicator');
+        const alertThreshold = document.getElementById('alertThreshold');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        
+        const currentVOCEl = document.getElementById('currentVOC');
+        const avgVOCEl = document.getElementById('avgVOC');
+        const peakVOCEl = document.getElementById('peakVOC');
+        const alertCountEl = document.getElementById('alertCount');
+        
+        let monitoring = false;
+        let stats = { sum: 0, count: 0, peak: 0, alerts: 0 };
+        
+        app.onLog(setupLogDisplay('logContainer'));
+        
+        connectKiwriousBtn.addEventListener('click', async () => {
+            try {
+                connectKiwriousBtn.disabled = true;
+                await app.connectKiwrious();
+                app.log('Kiwrious sensor connected!', 'success');
+                
+                // Enable start button if both are connected
+                if (app.kiwriousConnected && app.itilesConnected) {
+                    startBtn.disabled = false;
+                    disconnectBtn.disabled = false;
+                }
+            } catch (error) {
+                app.log(`Kiwrious connection failed: ${error.message}`, 'error');
+                connectKiwriousBtn.disabled = false;
+            }
+        });
+        
+        connectITilesBtn.addEventListener('click', async () => {
+            try {
+                connectITilesBtn.disabled = true;
+                await app.connectITiles();
+                app.log('iTiles master connected!', 'success');
+                app.log('ðŸ’¡ Tip: Click "Pair Child Tiles" to connect standard tiles', 'info');
+                
+                // Enable pair tiles button
+                pairTilesBtn.disabled = false;
+                
+                // Enable start button if both are connected
+                if (app.kiwriousConnected && app.itilesConnected) {
+                    startBtn.disabled = false;
+                    disconnectBtn.disabled = false;
+                }
+            } catch (error) {
+                app.log(`iTiles connection failed: ${error.message}`, 'error');
+                connectITilesBtn.disabled = false;
+            }
+        });
+        
+        pairTilesBtn.addEventListener('click', async () => {
+            try {
+                pairTilesBtn.disabled = true;
+                pairTilesBtn.textContent = 'Pairing in progress...';
+                
+                await app.pairChildTiles();
+                
+                pairTilesBtn.textContent = '✅ Tiles Paired!';
+                setTimeout(() => {
+                    pairTilesBtn.textContent = 'Pair Child Tiles';
+                    pairTilesBtn.disabled = false;
+                }, 3000);
+            } catch (error) {
+                app.log(`Pairing failed: ${error.message}`, 'error');
+                pairTilesBtn.textContent = 'Pair Child Tiles';
+                pairTilesBtn.disabled = false;
+            }
+        });
+        
+        disconnectBtn.addEventListener('click', async () => {
+            monitoring = false;
+            await app.disconnect();
+            connectKiwriousBtn.disabled = false;
+            connectITilesBtn.disabled = false;
+            pairTilesBtn.disabled = true;
+            disconnectBtn.disabled = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = true;
+        });
+        
+        startBtn.addEventListener('click', () => {
+            monitoring = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            app.log('Monitoring started', 'info');
+        });
+        
+        stopBtn.addEventListener('click', () => {
+            monitoring = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            app.log('Monitoring stopped', 'warning');
+        });
+        
+        clearLogBtn.addEventListener('click', () => {
+            document.getElementById('logContainer').innerHTML = '';
+        });
+        
+        app.onSensorData((sensorData) => {
+            const values = sensorData.decodedValues;
+            const vocData = values.find(v => v.label.toLowerCase().includes('voc'));
+            
+            if (!vocData) {
+                app.log('No VOC data found', 'warning');
+                return;
+            }
+            
+            const voc = parseFloat(vocData.value.value);
+            vocValue.textContent = voc.toFixed(0);
+            
+            stats.count++;
+            stats.sum += voc;
+            stats.peak = Math.max(stats.peak, voc);
+            
+            currentVOCEl.textContent = voc.toFixed(0);
+            avgVOCEl.textContent = (stats.sum / stats.count).toFixed(0);
+            peakVOCEl.textContent = stats.peak.toFixed(0);
+            
+            const quality = getAirQuality(voc);
+            qualityLabel.textContent = quality.name;
+            qualityLabel.className = `badge ${quality.class}`;
+            
+            const color = quality.color;
+            qualityIndicator.style.background = `rgb(${color.r}, ${color.g}, ${color.b})`;
+            qualityIndicator.style.boxShadow = `0 0 50px rgba(${color.r}, ${color.g}, ${color.b}, 0.5)`;
+            
+            if (monitoring && app.iTilesManager) {
+                updateITiles(voc, quality);
+            }
+        });
+        
+        function getAirQuality(voc) {
+            if (voc < 50) return { 
+                name: 'Excellent', class: 'success', 
+                color: { r: 0, g: 255, b: 0 } 
+            };
+            if (voc < 150) return { 
+                name: 'Good', class: 'success', 
+                color: { r: 153, g: 255, b: 0 } 
+            };
+            if (voc < 300) return { 
+                name: 'Fair', class: 'warning', 
+                color: { r: 255, g: 204, b: 0 } 
+            };
+            if (voc < 500) return { 
+                name: 'Poor', class: 'warning', 
+                color: { r: 255, g: 102, b: 0 } 
+            };
+            return { 
+                name: 'Hazardous', class: 'danger', 
+                color: { r: 255, g: 0, b: 0 } 
+            };
+        }
+        
+        async function updateITiles(voc, quality) {
+            try {
+                const color = new TileColor(quality.color.r, quality.color.g, quality.color.b);
+                const threshold = parseInt(alertThreshold.value);
+                
+                if (voc >= threshold) {
+                    await app.iTilesManager.triggerLightSoundVibration(
+                        color,
+                        TIMEOUT_DELAY.SEC_3,
+                        SOUND_TRACK.DEFAULT,
+                        VIBRATION_PATTERN.II,
+                        REPEAT_COUNT.I,
+                        LOG_REACTION_TIME.NONE,
+                        TIMEOUT_RESPONSE.IMMEDIATE,
+                        SELECT_ITILE.ALL
+                    );
+                    stats.alerts++;
+                    alertCountEl.textContent = stats.alerts;
+                    app.log(`⚠️ AIR QUALITY ALERT! VOC: ${voc.toFixed(0)} PPM`, 'warning');
+                } else {
+                    await app.iTilesManager.triggerLight(
+                        color,
+                        TIMEOUT_DELAY.SEC_2,
+                        LOG_REACTION_TIME.NONE,
+                        TIMEOUT_RESPONSE.IMMEDIATE,
+                        SELECT_ITILE.ALL
+                    );
+                }
+            } catch (error) {
+                app.log(`Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

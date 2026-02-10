@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiwrious + iTiles - Interactive Applications</title>
+    <!-- Kiwrious Theme CSS -->
+    <link rel="stylesheet" href="https://stakcos.com/kiwrious/cdn/css/theme.css">
+    <link rel="stylesheet" href="styles/shared.css">
+    
+    <!-- Kiwrious Decoder Dependencies (loaded from CDN) -->
+    <script type="text/javascript" src="https://stakcos.com/kiwrious/sdk/js/libunicorn_out.js"></script>
+    <script type="text/javascript" src="https://stakcos.com/kiwrious/sdk/js/libelf-integers.js"></script>
+    <script type="text/javascript" src="https://stakcos.com/kiwrious/sdk/js/unicorn-wrapper.js"></script>
+    <script type="text/javascript" src="https://stakcos.com/kiwrious/sdk/js/unicorn-constants.js"></script>
+    <script type="text/javascript" src="https://stakcos.com/kiwrious/sdk/js/heartrate.js"></script>
+    
+    <style>
+        /* Theme Integration - Kiwrious Colors & Fonts */
+        body {
+            font-family: var(--font-family-primary);
+            background: var(--color-bg-white);
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .app-card {
+            background: var(--color-bg-white);
+            border-radius: var(--border-radius-large);
+            padding: 30px;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition-default) var(--transition-ease);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            /* box-shadow: var(--color-primary-dark); */
+        }
+
+        .app-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .app-title {
+            font-size: 1.4rem;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 10px;
+            color: var(--color-primary);
+            font-family: var(--font-family-primary);
+        }
+
+        .app-description {
+            color: var(--color-text-dark);
+            line-height: var(--line-height-relaxed);
+            margin-bottom: 15px;
+            flex-grow: 1;
+            font-family: var(--font-family-secondary);
+        }
+
+        .app-sensor {
+            display: inline-block;
+            padding: 5px 12px;
+            background: rgba(79, 215, 207, 0.15);
+            border: 1px solid var(--color-secondary);
+            border-radius: var(--border-radius-round);
+            font-size: 0.85rem;
+            color: var(--color-primary-dark);
+            margin-top: 10px;
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .category {
+            margin-top: 40px;
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary-dark);
+            margin-bottom: 20px;
+            padding-left: 30px;
+            border-left: 5px solid var(--color-primary);
+            font-family: var(--font-family-primary);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 30px;
+            background: var(--gradient-primary);
+            color: var(--color-text-white);
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-family: var(--font-family-primary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: var(--opacity-high);
+            max-width: 700px;
+            margin: 0 auto;
+            font-family: var(--font-family-secondary);
+        }
+
+        .status-bar {
+            background: rgba(79, 215, 207, 0.1);
+            border: 1px solid var(--color-secondary);
+            padding: 15px 30px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            border-radius: var(--border-radius-medium);
+            margin: 20px 30px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: var(--border-radius-round);
+            background: #dc3545;
+            transition: var(--transition-default) var(--transition-ease);
+        }
+
+        .status-dot.connected {
+            background: var(--color-secondary);
+            box-shadow: 0 0 10px var(--color-secondary);
+        }
+        
+        .info-banner {
+            background: rgba(248, 87, 8, 0.1);
+            border: 2px solid var(--color-primary);
+            padding: 15px 30px;
+            margin: 20px 30px;
+            border-radius: var(--border-radius-medium);
+            color: var(--color-primary-dark);
+        }
+        
+        .info-banner strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: var(--color-primary);
+            font-family: var(--font-family-primary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .info-banner p {
+            font-family: var(--font-family-secondary);
+            color: var(--color-text-dark);
+        }
+
+        .info-banner ul {
+            font-family: var(--font-family-secondary);
+            color: var(--color-text-dark);
+        }
+
+        .info-banner em {
+            color: var(--color-primary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--color-text-dark);
+            margin-top: 60px;
+            font-family: var(--font-family-secondary);
+        }
+
+        footer p {
+            opacity: var(--opacity-medium-high);
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🔬 Kiwrious + iTiles</h1>
+        <p>Interactive sensor-driven applications combining biometric sensing with haptic, visual, and audio feedback</p>
+    </div>
+
+    <div class="info-banner">
+        <strong>🚀 Using CDN Libraries</strong>
+        <p>This application uses CDN-hosted libraries for both Kiwrious sensors and iTiles:</p>
+        <ul style="margin: 10px 0 0 20px;">
+            <li><strong>Kiwrious:</strong> https://stakcos.com/kiwrious/sdk/kiwrious-webserial.esm.js</li>
+            <li><strong>iTiles:</strong> https://stakcos.com/itiles/itiles.esm.js</li>
+        </ul>
+        <p style="margin-top: 10px;"><em>No npm installation required! Everything loads from CDN.</em></p>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="status-dot" id="kiwriousStatus"></div>
+            <span>Kiwrious Sensors</span>
+        </div>
+        <div class="status-item">
+            <div class="status-dot" id="itilesStatus"></div>
+            <span>iTiles System</span>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2 class="category-title">🌡️ Environmental Monitoring</h2>
+        <div class="app-grid">
+            <a href="apps/temperature-visualizer.html" class="app-card">
+                <div class="app-icon">🌡️</div>
+                <h3 class="app-title">Temperature Visualizer</h3>
+                <p class="app-description">Real-time temperature monitoring with color-mapped iTiles feedback. Watch as tiles transition from blue (cold) to red (hot).</p>
+                <span class="app-sensor">📊 Climate Sensor</span>
+            </a>
+
+            <a href="apps/uv-safety-system.html" class="app-card">
+                <div class="app-icon">☀️</div>
+                <h3 class="app-title">UV Safety System</h3>
+                <p class="app-description">Monitor UV levels and get instant visual + audio warnings. Perfect for outdoor safety monitoring.</p>
+                <span class="app-sensor">💡 Light Sensor (UV)</span>
+            </a>
+
+            <a href="apps/air-quality-monitor.html" class="app-card">
+                <div class="app-icon">💨</div>
+                <h3 class="app-title">Air Quality Monitor</h3>
+                <p class="app-description">Track VOC levels with color-coded warnings and alerts when air quality drops.</p>
+                <span class="app-sensor">🌬️ Air Sensor (VOC)</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2 class="category-title">🎮 Interactive Games</h2>
+        <div class="app-grid">
+            <a href="apps/heart-rate-challenge.html" class="app-card">
+                <div class="app-icon">❤️</div>
+                <h3 class="app-title">Heart Rate Challenge</h3>
+                <p class="app-description">Exercise-based game that tracks your heart rate zones and rewards optimal performance.</p>
+                <span class="app-sensor">❤️ Cardio Sensor</span>
+            </a>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 40px; margin-top: 60px;">
+        <p>Built with Kiwrious WebSerial SDK + iTiles Web Bluetooth</p>
+        <p style="font-size: 0.9rem; margin-top: 10px;">
+            Requires Chrome/Edge browser with Web Bluetooth & WebSerial support
+        </p>
+        <p style="font-size: 0.85rem; margin-top: 15px; opacity: 0.8;">
+            📚 Using CDN: Kiwrious (stakcos.com/kiwrious/sdk) | iTiles (stakcos.com/itiles)
+        </p>
+    </footer>
+
+    <script>
+        // Check browser compatibility
+        if (!navigator.bluetooth || !navigator.serial) {
+            alert('⚠️ Your browser does not support Web Bluetooth and/or WebSerial APIs. Please use Chrome or Edge browser.');
+        }
+
+        // Log CDN info
+        console.log('🔬 Kiwrious + iTiles Application Hub');
+        console.log('📦 Kiwrious CDN: https://stakcos.com/kiwrious/sdk/kiwrious-webserial.esm.js');
+        console.log('📦 iTiles CDN: https://stakcos.com/itiles/itiles.esm.js');
+        console.log('✅ Decoder scripts loaded from CDN');
+    </script>
+</body>
+</html>

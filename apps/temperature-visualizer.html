@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Visualizer - Kiwrious + iTiles</title>
+    <!-- Kiwrious Theme CSS -->
+    <link rel="stylesheet" href="https://stakcos.com/kiwrious/cdn/css/theme.css">
+    <link rel="stylesheet" href="../styles/shared.css">
+    <style>
+        /* Theme Integration - Kiwrious Colors */
+        body {
+            font-family: var(--font-family-primary);
+            background: var(--gradient-primary);
+        }
+
+        .app-header h1,
+        .app-header p {
+            font-family: var(--font-family-primary);
+        }
+
+        .back-button {
+            background: var(--color-primary);
+            color: var(--color-text-white);
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-bold);
+            transition: var(--transition-default) var(--transition-ease);
+        }
+
+        .back-button:hover {
+            background: var(--color-accent);
+            transform: translateX(-5px);
+        }
+
+        .card {
+            box-shadow: var(--shadow-card);
+            border-radius: var(--border-radius-large);
+        }
+
+        .card h2 {
+            color: var(--color-primary-dark);
+            font-family: var(--font-family-primary);
+            font-weight: var(--font-weight-bold);
+            border-bottom-color: var(--color-primary);
+        }
+
+        button {
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-bold);
+            border-radius: var(--border-radius-medium);
+            transition: var(--transition-default) var(--transition-ease-in-out);
+        }
+
+        button:not(.secondary):not(.danger):not(.success) {
+            background: var(--color-primary);
+        }
+
+        button:not(.secondary):not(.danger):not(.success):hover:not(:disabled) {
+            background: var(--color-accent);
+        }
+
+        button.secondary {
+            background: var(--color-secondary);
+        }
+
+        button.secondary:hover:not(:disabled) {
+            background: var(--color-accent);
+        }
+
+        button.success {
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+        }
+
+        .sensor-display {
+            background: var(--color-bg-dark);
+            border-radius: var(--border-radius-large);
+        }
+
+        .sensor-value {
+            color: var(--color-secondary);
+            font-family: var(--font-family-primary);
+        }
+
+        .sensor-label {
+            color: var(--color-text-white);
+            font-family: var(--font-family-secondary);
+            opacity: var(--opacity-medium-high);
+        }
+
+        .badge {
+            border-radius: var(--border-radius-round);
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .badge.success {
+            background: var(--color-secondary);
+        }
+
+        .badge.warning {
+            background: var(--color-primary);
+        }
+
+        .badge.danger {
+            background: #dc3545;
+        }
+
+        .info-box {
+            background: rgba(79, 215, 207, 0.1);
+            border: 2px solid var(--color-secondary);
+            border-radius: var(--border-radius-medium);
+        }
+
+        .info-box strong {
+            color: var(--color-primary-dark);
+            font-family: var(--font-family-primary);
+        }
+
+        .info-box ul {
+            color: var(--color-text-dark);
+            font-family: var(--font-family-secondary);
+        }
+
+        .control-group label {
+            color: var(--color-primary-dark);
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .control-group input,
+        .control-group select {
+            border: 2px solid var(--color-secondary);
+            border-radius: var(--border-radius-medium);
+            font-family: var(--font-family-secondary);
+            transition: var(--transition-default) var(--transition-ease);
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(248, 87, 8, 0.1);
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, rgba(79, 215, 207, 0.1) 0%, rgba(0, 171, 161, 0.1) 100%);
+            border-radius: var(--border-radius-medium);
+            border: 1px solid var(--color-secondary);
+        }
+
+        .stat-value {
+            color: var(--color-primary);
+            font-family: var(--font-family-primary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .stat-label {
+            color: var(--color-primary-dark);
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .log-container {
+            background: var(--color-bg-dark);
+            border-radius: var(--border-radius-medium);
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-entry {
+            font-family: var(--font-family-secondary);
+        }
+
+        .log-entry .timestamp {
+            color: var(--color-secondary);
+        }
+
+        .log-entry .type-info {
+            color: var(--color-secondary);
+        }
+
+        .log-entry .type-success {
+            color: #81c784;
+        }
+
+        .log-entry .type-error {
+            color: #e57373;
+        }
+
+        .log-entry .type-warning {
+            color: var(--color-primary);
+        }
+
+        .status-bar {
+            background: rgba(79, 215, 207, 0.1);
+            border-radius: var(--border-radius-medium);
+            border: 1px solid var(--color-secondary);
+        }
+
+        .status-dot {
+            transition: var(--transition-default) var(--transition-ease);
+        }
+
+        .status-dot.connected {
+            background: var(--color-secondary);
+            box-shadow: 0 0 10px var(--color-secondary);
+        }
+
+        .visual-display {
+            background: var(--color-bg-dark);
+            border-radius: var(--border-radius-large);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .visual-indicator {
+            border-radius: var(--border-radius-round);
+            transition: var(--transition-slow) var(--transition-ease-out);
+        }
+
+        /* Status indicator labels */
+        .status-indicator span {
+            font-family: var(--font-family-secondary);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-button">← Back to Apps</a>
+        
+        <div class="app-header">
+            <h1>🌡️ Temperature Visualizer</h1>
+            <p>Watch iTiles change colors based on real-time temperature readings</p>
+        </div>
+
+        <!-- Connection Card -->
+        <div class="card">
+            <h2>Connection Status</h2>
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot" id="kiwriousStatus"></div>
+                    <span>Kiwrious Climate Sensor</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot" id="itilesStatus"></div>
+                    <span>iTiles System</span>
+                </div>
+            </div>
+            <div class="button-group">
+                <button id="connectKiwriousBtn">Connect Kiwrious Sensor</button>
+                <button id="connectITilesBtn">Connect iTiles</button>
+                <button id="disconnectBtn" disabled>Disconnect All</button>
+                <button id="pairTilesBtn" disabled class="secondary">Pair Child Tiles</button>
+            </div>
+        </div>
+
+        <!-- Temperature Display -->
+        <div class="card">
+            <h2>Current Temperature</h2>
+            <div class="sensor-display">
+                <div class="sensor-label">Temperature Reading</div>
+                <div class="sensor-value">
+                    <span id="tempValue">--</span>
+                    <span class="sensor-unit">°C</span>
+                </div>
+            </div>
+            
+            <!-- Visual indicator -->
+            <div class="visual-display">
+                <div class="visual-indicator" id="colorIndicator"></div>
+            </div>
+
+            <!-- Temperature scale -->
+            <div class="info-box">
+                <strong>Color Scale:</strong>
+                <ul>
+                    <li><span style="color: #0099ff;">🔵 Blue</span> - Cold (< 15°C)</li>
+                    <li><span style="color: #00ffff;">🔷 Cyan</span> - Cool (15-20°C)</li>
+                    <li><span style="color: #ffff00;">🟡 Yellow</span> - Warm (20-25°C)</li>
+                    <li><span style="color: #ff9900;">🟠 Orange</span> - Hot (25-30°C)</li>
+                    <li><span style="color: #ff0000;">🔴 Red</span> - Very Hot (> 30°C)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="card">
+            <h2>Controls</h2>
+            <div class="control-group">
+                <label>Update Mode</label>
+                <select id="updateMode">
+                    <option value="continuous">Continuous Update</option>
+                    <option value="threshold">Threshold-Based (1°C change)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Target Tiles</label>
+                <select id="tileSelect">
+                    <option value="255">All Tiles</option>
+                    <option value="1">Tile I</option>
+                    <option value="2">Tile II</option>
+                    <option value="3">Tile III</option>
+                    <option value="4">Tile IV</option>
+                    <option value="5">Tile V</option>
+                    <option value="6">Tile VI</option>
+                </select>
+            </div>
+            <div class="button-group">
+                <button id="startBtn" disabled class="success">▶️ Start Monitoring</button>
+                <button id="stopBtn" disabled class="danger">⏹️ Stop</button>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="card">
+            <h2>Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="minTemp">--</div>
+                    <div class="stat-label">Min Temp (°C)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="maxTemp">--</div>
+                    <div class="stat-label">Max Temp (°C)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="avgTemp">--</div>
+                    <div class="stat-label">Avg Temp (°C)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="readingCount">0</div>
+                    <div class="stat-label">Readings</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Log -->
+        <div class="card">
+            <h2>Event Log</h2>
+            <div class="log-container" id="logContainer"></div>
+            <button id="clearLogBtn" style="margin-top: 10px;">🗑️ Clear Log</button>
+        </div>
+    </div>
+
+    <script src="../js/shared-utils.js"></script>
+    <script type="module">
+        const app = new AppController();
+        
+        // UI Elements
+        const connectKiwriousBtn = document.getElementById('connectKiwriousBtn');
+        const connectITilesBtn = document.getElementById('connectITilesBtn');
+        const pairTilesBtn = document.getElementById('pairTilesBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const tempValue = document.getElementById('tempValue');
+        const colorIndicator = document.getElementById('colorIndicator');
+        const updateMode = document.getElementById('updateMode');
+        const tileSelect = document.getElementById('tileSelect');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        
+        // Stats
+        const minTempEl = document.getElementById('minTemp');
+        const maxTempEl = document.getElementById('maxTemp');
+        const avgTempEl = document.getElementById('avgTemp');
+        const readingCountEl = document.getElementById('readingCount');
+        
+        let monitoring = false;
+        let lastTemp = null;
+        let stats = {
+            min: Infinity,
+            max: -Infinity,
+            sum: 0,
+            count: 0
+        };
+        
+        // Setup logging
+        app.onLog(setupLogDisplay('logContainer'));
+        
+        // Connect Kiwrious button
+        connectKiwriousBtn.addEventListener('click', async () => {
+            try {
+                connectKiwriousBtn.disabled = true;
+                await app.connectKiwrious();
+                app.log('Kiwrious sensor connected!', 'success');
+                
+                // Enable start button if both are connected
+                if (app.kiwriousConnected && app.itilesConnected) {
+                    startBtn.disabled = false;
+                    disconnectBtn.disabled = false;
+                }
+            } catch (error) {
+                app.log(`Kiwrious connection failed: ${error.message}`, 'error');
+                connectKiwriousBtn.disabled = false;
+            }
+        });
+        
+        // Connect iTiles button
+        connectITilesBtn.addEventListener('click', async () => {
+            try {
+                connectITilesBtn.disabled = true;
+                await app.connectITiles();
+                pairTilesBtn.disabled = false;
+            } catch (error) {
+                app.log(`Connection failed: ${error.message}`, 'error');
+                connectITilesBtn.disabled = false;
+            }
+        });
+        
+        // Pair tiles button
+        pairTilesBtn.addEventListener('click', async () => {
+            try {
+                pairTilesBtn.disabled = true;
+                pairTilesBtn.textContent = 'Pairing in progress...';
+                
+                await app.pairChildTiles();
+                
+                pairTilesBtn.textContent = '✅ Tiles Paired!';
+                setTimeout(() => {
+                    pairTilesBtn.textContent = 'Pair Child Tiles';
+                    pairTilesBtn.disabled = false;
+                }, 3000);
+                
+                // Enable start button if both are connected
+                if (app.kiwriousConnected && app.itilesConnected) {
+                    startBtn.disabled = false;
+                    disconnectBtn.disabled = false;
+                }
+            } catch (error) {
+                app.log(`Pairing failed: ${error.message}`, 'error');
+                pairTilesBtn.textContent = 'Pair Child Tiles';
+                pairTilesBtn.disabled = false;
+            }
+        });
+        
+        // Disconnect button
+        disconnectBtn.addEventListener('click', async () => {
+            monitoring = false;
+            await app.disconnect();
+            connectKiwriousBtn.disabled = false;
+            connectITilesBtn.disabled = false;
+            pairTilesBtn.disabled = true;
+            disconnectBtn.disabled = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = true;
+        });
+        
+        // Start monitoring
+        startBtn.addEventListener('click', () => {
+            monitoring = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            app.log('Temperature monitoring started', 'info');
+        });
+        
+        // Stop monitoring
+        stopBtn.addEventListener('click', () => {
+            monitoring = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            app.log('Temperature monitoring stopped', 'warning');
+        });
+        
+        // Clear log
+        clearLogBtn.addEventListener('click', () => {
+            document.getElementById('logContainer').innerHTML = '';
+        });
+        
+        // Handle sensor data
+        app.onSensorData((sensorData) => {
+            const values = sensorData.decodedValues;
+            
+            // Find temperature value
+            const tempData = values.find(v => 
+                v.label.toLowerCase().includes('temp') || 
+                v.label.toLowerCase() === 't'
+            );
+            
+            if (!tempData) {
+                app.log('No temperature data found in sensor reading', 'warning');
+                return;
+            }
+            
+            const temp = parseFloat(tempData.value);
+            tempValue.textContent = temp.toFixed(1);
+            
+            // Update stats
+            stats.count++;
+            stats.sum += temp;
+            stats.min = Math.min(stats.min, temp);
+            stats.max = Math.max(stats.max, temp);
+            
+            minTempEl.textContent = stats.min.toFixed(1);
+            maxTempEl.textContent = stats.max.toFixed(1);
+            avgTempEl.textContent = (stats.sum / stats.count).toFixed(1);
+            readingCountEl.textContent = stats.count;
+            
+            // Update visual indicator
+            const color = getTempColor(temp);
+            colorIndicator.style.background = `rgb(${color.r}, ${color.g}, ${color.b})`;
+            colorIndicator.style.boxShadow = `0 0 50px rgba(${color.r}, ${color.g}, ${color.b}, 0.5)`;
+            
+            // Update iTiles if monitoring
+            if (monitoring && app.iTilesManager) {
+                const mode = updateMode.value;
+                const shouldUpdate = mode === 'continuous' || 
+                                   lastTemp === null || 
+                                   Math.abs(temp - lastTemp) >= 1.0;
+                
+                if (shouldUpdate) {
+                    updateITiles(temp);
+                    lastTemp = temp;
+                }
+            }
+        });
+        
+        // Get color for temperature
+        function getTempColor(temp) {
+            if (temp < 15) return { r: 0, g: 0, b: 153 }; // Blue
+            if (temp < 20) return { r: 0, g: 153, b: 153 }; // Cyan
+            if (temp < 25) return { r: 153, g: 153, b: 0 }; // Yellow
+            if (temp < 30) return { r: 153, g: 77, b: 0 }; // Orange
+            return { r: 153, g: 0, b: 0 }; // Red
+        }
+        
+        // Update iTiles with temperature color
+        async function updateITiles(temp) {
+            try {
+                const color = getTempColor(temp);
+                const tileColor = new TileColor(color.r, color.g, color.b);
+                const tileId = parseInt(tileSelect.value);
+                
+                await app.iTilesManager.triggerLight(
+                    tileColor,
+                    TIMEOUT_DELAY.NOPE, // No timeout - continuous
+                    LOG_REACTION_TIME.NONE,
+                    TIMEOUT_RESPONSE.IMMEDIATE,
+                    tileId
+                );
+                
+                // Log temperature zone changes
+                let zone = '';
+                if (temp < 15) zone = 'Cold';
+                else if (temp < 20) zone = 'Cool';
+                else if (temp < 25) zone = 'Warm';
+                else if (temp < 30) zone = 'Hot';
+                else zone = 'Very Hot';
+                
+                app.log(`Temperature: ${temp.toFixed(1)}°C - ${zone}`, 'info');
+            } catch (error) {
+                app.log(`Error updating tiles: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
